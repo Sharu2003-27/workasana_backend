@@ -17,9 +17,8 @@ app.use("/tags", require("./routes/tag.routes"))
 app.use("/report", require("./routes/report.routes"))
 
 app.get("/", (req, res) => {
-    res.send("Backend is running 🚀");
+    res.send("Welcome to the Workasana!! Backend is running 🚀");
 });
-
 
 const PORT = process.env.PORT || 3000
 app.listen(PORT, () => {
