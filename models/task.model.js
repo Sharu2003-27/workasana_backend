@@ -1,29 +1,35 @@
-const mongoose = require('mongoose');
-
 const taskSchema = new mongoose.Schema({
- name: { type: String, required: true },
- project: { type: mongoose.Schema.Types.ObjectId, 
-    ref: 'Project', required: true }, 
- team: { type: mongoose.Schema.Types.ObjectId, ref: 'Team',
-required: true }, 
- owners: [
- { type: mongoose.Schema.Types.ObjectId,
-   ref: 'User', required: true } 
- ],
- tags: [{ type: String }], 
- timeToComplete: { type: Number, required: true }, 
- status: {
- type: String,
- enum: ['To Do', 'In Progress', 'Completed', 'Blocked'],
- default: 'To Do'
- }, 
- createdAt: { type: Date, default: Date.now },
- updatedAt: { type: Date, default: Date.now }
-})
+  name: { type: String, required: true },
 
-taskSchema.pre('save', function (next) {
- this.updatedAt = Date.now();
- next();
-});
+  project: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Project',
+    required: true
+  },
 
-module.exports = mongoose.model('Task', taskSchema)
+  team: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Team',
+    required: true
+  },
+
+  owners: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    }
+  ],
+
+  tags: [{ type: String }],
+
+  timeToComplete: { type: Number, default: 0 },
+
+  status: {
+    type: String,
+    enum: ['To Do', 'In Progress', 'Completed', 'Blocked'],
+    default: 'To Do'
+  }
+
+}, { timestamps: true }); 
+
+module.exports = mongoose.model('Task', taskSchema);
