@@ -1,53 +1,63 @@
-const express = require("express")
-const Task = require("../models/task.model")
-const { authMiddleware } = require("../middleware/auth.middleware")
+const express = require("express");
+const Task = require("../models/task.model");
+const { authMiddleware } = require("../middleware/auth.middleware");
 
-const router = express.Router()
+const router = express.Router();
 
 // CREATE TASK
 router.post("/", authMiddleware, async (req, res) => {
   try {
-    const task = await Task.create(req.body)
-    res.status(201).json(task)
+    const task = await Task.create(req.body);
+    res.status(201).json(task);
   } catch (err) {
-    res.status(500).json({ error: "Failed to create task" })
+    res.status(500).json({ error: "Failed to create task" });
   }
-})
-
+});
 
 // GET TASKS WITH FILTERS
 router.get("/", authMiddleware, async (req, res) => {
   try {
-    const { team, owner, project, tag } = req.query
+    const { team, owner, project, tag, status } = req.query;
 
-    let filter = {}
+    let filter = {};
 
-    if (team) filter.team = team
-    if (owner) filter.owner = owner
-    if (project) filter.project = project
-    if (tag) filter.tags = tag
+    if (team) filter.team = team;
+
+    if (owner) filter.owners = owner;
+
+    if (project) filter.project = project;
+
+    if (tag) filter.tags = tag;
+
+    if (status) filter.status = status;
 
     const tasks = await Task.find(filter)
-    res.json(tasks)
+      .populate("project", "name")
+      .populate("team", "name")
+      .populate("owners", "name");
+
+    res.json(tasks);
   } catch (err) {
-    res.status(500).json({ error: "Failed to fetch tasks" })
+    res.status(500).json({ error: "Failed to fetch tasks" });
   }
-})
+});
 
-
-// GET SINGLE TASK BY ID
 router.get("/:id", authMiddleware, async (req, res) => {
   try {
     const task = await Task.findById(req.params.id)
-    if (!task) {
-      return res.status(404).json({ error: "Task not found" })
-    }
-    res.json(task)
-  } catch {
-    res.status(400).json({ error: "Invalid task id" })
-  }
-})
+      .populate("project", "name")
+      .populate("team", "name")
+      .populate("owners", "name");
 
+    if (!task) {
+      return res.status(404).json({ error: "Task not found" });
+    }
+
+    res.json(task);
+  } catch (err) {
+    res.status(400).json({ error: "Invalid task id" });
+  }
+});
 
 // UPDATE TASK
 router.put("/:id", authMiddleware, async (req, res) => {
@@ -56,22 +66,31 @@ router.put("/:id", authMiddleware, async (req, res) => {
       req.params.id,
       req.body,
       { new: true }
-    )
-    res.json(updatedTask)
-  } catch {
-    res.status(400).json({ error: "Failed to update task" })
-  }
-})
+    );
 
+    if (!updatedTask) {
+      return res.status(404).json({ error: "Task not found" });
+    }
+
+    res.json(updatedTask);
+  } catch (err) {
+    res.status(400).json({ error: "Failed to update task" });
+  }
+});
 
 // DELETE TASK
 router.delete("/:id", authMiddleware, async (req, res) => {
   try {
-    await Task.findByIdAndDelete(req.params.id)
-    res.json({ message: "Task deleted successfully" })
-  } catch {
-    res.status(400).json({ error: "Failed to delete task" })
-  }
-})
+    const deletedTask = await Task.findByIdAndDelete(req.params.id);
 
-module.exports = router
+    if (!deletedTask) {
+      return res.status(404).json({ error: "Task not found" });
+    }
+
+    res.json({ message: "Task deleted successfully" });
+  } catch (err) {
+    res.status(400).json({ error: "Failed to delete task" });
+  }
+});
+
+module.exports = router;
