@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const taskSchema = new mongoose.Schema({
-  name: { type: String, required: true },
+  taskName: { type: String, required: true },
 
   project: {
     type: mongoose.Schema.Types.ObjectId,
