@@ -60,7 +60,7 @@ router.get("/:id", authMiddleware, async (req, res) => {
 });
 
 // UPDATE TASK
-router.put("/:id", authMiddleware, async (req, res) => {
+router.post("/:id", authMiddleware, async (req, res) => {
   try {
     const updatedTask = await Task.findByIdAndUpdate(
       req.params.id,

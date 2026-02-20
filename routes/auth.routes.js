@@ -25,7 +25,7 @@ router.post("/signup", async (req, res) => {
 
   res.status(201).json({ message: "Signup successful" })
 })
- 
+
 // Login
 router.post("/login", async (req, res) => {
   try {
@@ -63,5 +63,11 @@ router.get("/me", authMiddleware, async (req, res) => {
   const user = await User.findById(req.user.userId).select("-password")
   res.json(user)
 })
+
+// Get all users
+router.get("/users", authMiddleware, async (req, res) => {
+  const users = await User.find().select("-password");
+  res.json(users);
+});
 
 module.exports = router
